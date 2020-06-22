@@ -1,0 +1,78 @@
+CREATE TABLE [dbo].[Category] (
+    [Id]          INT           IDENTITY (1, 1) NOT NULL,
+    [Description] NVARCHAR (50) NOT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+CREATE TABLE [dbo].[Customer] (
+    [Id]   INT           IDENTITY (1, 1) NOT NULL,
+    [Name] NVARCHAR (40) NOT NULL,
+    [Phone]        NVARCHAR (20) NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+CREATE TABLE [dbo].[Location] (
+    [Id]      INT           IDENTITY (1, 1) NOT NULL,
+    [Name]    NVARCHAR (50) NOT NULL,
+    [Adress]  NVARCHAR (50) NULL,
+    [Country] NVARCHAR (50) NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+CREATE TABLE [dbo].[Supplier] (
+    [Id]  INT           IDENTITY (1, 1) NOT NULL,
+    [Name] NVARCHAR (50) NOT NULL,
+    [Phone]       NVARCHAR (20) NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+CREATE TABLE [dbo].[Product] (
+    [Id]   INT             IDENTITY (1, 1) NOT NULL,
+    [Name] NVARCHAR (50)   NOT NULL,
+    [SupplierId]  INT             NOT NULL,
+    [UnitPrice]   DECIMAL (12, 2) NULL,
+    [CategoryId]  INT             NOT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_CategoryID] FOREIGN KEY ([CategoryId]) REFERENCES [dbo].[Category] ([Id]), 
+    CONSTRAINT [FK_SupplierID] FOREIGN KEY ([SupplierId]) REFERENCES [dbo].[Supplier]([Id])
+);
+
+CREATE TABLE [dbo].[Warehouse] (
+    [Id]   INT           NOT NULL IDENTITY,
+    [Name] NVARCHAR (50) NOT NULL,
+    [LocationId] INT NOT NULL, 
+    PRIMARY KEY CLUSTERED ([Id] ASC), 
+    CONSTRAINT [FK_LocationId] FOREIGN KEY ([LocationId]) REFERENCES [dbo].[Location]([Id]) 
+);
+
+CREATE TABLE [dbo].[Stock] (
+    [WarehouseId] INT NOT NULL,
+    [ProductId]   INT NOT NULL,
+    [Quantity]    INT NULL,
+    CONSTRAINT [FK_ProductID] FOREIGN KEY ([ProductId]) REFERENCES [dbo].[Product] ([Id]),
+    CONSTRAINT [FK_Warehouse_ID] FOREIGN KEY ([WarehouseId]) REFERENCES [dbo].[Warehouse] ([Id])
+);
+
+CREATE TABLE [dbo].[Orders] (
+    [Id]     INT             IDENTITY (1, 1) NOT NULL,
+    [Description] NVARCHAR (50)   NOT NULL,
+    [CustomerId]  INT             NOT NULL,
+    [OrderDate]   DATETIME        NOT NULL,
+    [TotalAmount] DECIMAL (12, 2) NOT NULL,
+    [Status]      INT             NULL,
+    [WarehouseId] INT             NOT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+	CONSTRAINT [FK_Order_WarehouseID] FOREIGN KEY ([WarehouseId]) REFERENCES [dbo].[Warehouse] ([Id]),
+    CONSTRAINT [FK_Order_CustomerID] FOREIGN KEY ([CustomerId]) REFERENCES [dbo].[Customer] ([Id])
+);
+
+CREATE TABLE [dbo].[OrderLine] (
+    [OrderId]   INT             NOT NULL,
+    [ProductId] INT             NOT NULL,
+    [UnitPrice] DECIMAL (12, 2) NULL,
+    [Quantity]  INT             NOT NULL,
+    [Discount]  DECIMAL (12, 2) NULL,
+    CONSTRAINT [FK_OrderItem_OrderID] FOREIGN KEY ([OrderId]) REFERENCES [dbo].[Orders] ([Id]),
+    CONSTRAINT [FK_OrderItem_ProductID] FOREIGN KEY ([ProductId]) REFERENCES [dbo].[Product] ([Id])
+);
